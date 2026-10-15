@@ -2,63 +2,56 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $categorias = Category::orderBy('nombre')->get();
+
+        return view('categorias.index', compact('categorias'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('categorias.formulario', [
+            'categoria' => new Category(),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $datos = $request->validate([
+            'nombre' => 'required|string|max:100|unique:categories,nombre',
+        ]);
+
+        Category::create($datos);
+
+        return redirect()->route('categorias.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Category $categoria)
     {
-        //
+        return view('categorias.formulario', compact('categoria'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, Category $categoria)
     {
-        //
+        $datos = $request->validate([
+            'nombre' => 'required|string|max:100|unique:categories,nombre,' . $categoria->id,
+        ]);
+
+        $categoria->update($datos);
+
+        return redirect()->route('categorias.index');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Category $categoria)
     {
-        //
-    }
+        $categoria->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('categorias.index');
     }
 }
